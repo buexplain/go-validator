@@ -7,13 +7,13 @@ import (
 )
 
 //校验函数
-type FN func(field string, value interface{}) (bool, error)
+type FN func(field string, value interface{}, rule *Rule) (bool, error)
 
-//已有的规则
-var rules map[string]FN = map[string]FN{}
+//规则池
+var rulePool map[string]FN = map[string]FN{}
 
 func init() {
-	rules["required"] = func(field string, value interface{}) (bool, error) {
+	rulePool["required"] = func(field string, value interface{}, rule *Rule) (bool, error) {
 		if value == nil {
 			return false, nil
 		}

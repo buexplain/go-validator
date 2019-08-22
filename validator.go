@@ -5,36 +5,40 @@ import (
 	"reflect"
 )
 
-type Option struct {
-	//规则名称
-	Name string
-	//校验失败的提示信息
-	Message string
+//配置信息
+type Options struct {
+	field string
+	Data  map[string][]*Rule
+}
+
+func (this *Options) Add(rule string, message string) *Options {
+	r := NewRule(rule, message)
+	if tmp, ok := this.Data[this.field]; ok {
+		this.Data[this.field] = append(tmp, r)
+	} else {
+		this.Data[this.field] = []*Rule{r}
+	}
+	return this
 }
 
 //结构体校验器
 type Validator struct {
 	//所有校验规则
-	Options map[string][]Option
+	Options *Options
 	//自定义规则
 	Custom map[string]FN
 }
 
 func New() *Validator {
 	tmp := new(Validator)
-	tmp.Options = map[string][]Option{}
+	tmp.Options = &Options{Data: map[string][]*Rule{}}
 	tmp.Custom = map[string]FN{}
 	return tmp
 }
 
-func (this *Validator) Rule(field string, rule string, message string) *Validator {
-	r := Option{Name: rule, Message: message}
-	if tmp, ok := this.Options[field]; ok {
-		this.Options[field] = append(tmp, r)
-	} else {
-		this.Options[field] = []Option{r}
-	}
-	return this
+func (this *Validator) Rule(field string) *Options {
+	this.Options.field = field
+	return this.Options
 }
 
 func (this *Validator) Validate(a interface{}) (Result, error) {
@@ -53,19 +57,19 @@ func (this *Validator) Validate(a interface{}) (Result, error) {
 	for i := 0; i < reflectType.NumField(); i++ {
 		key := reflectType.Field(i)
 		value := reflectValue.Field(i).Interface()
-		options, ok := this.Options[key.Name]
+		rules, ok := this.Options.Data[key.Name]
 		if !ok {
 			continue
 		}
-		for _, option := range options {
+		for _, rule := range rules {
 			//优先使用自定义校验规则
-			fn, ok := this.Custom[option.Name]
+			fn, ok := this.Custom[rule.Name]
 			if !ok {
-				fn, ok = rules[option.Name]
+				fn, ok = rulePool[rule.Name]
 			}
 			//根据规则名称，没有找到相关规则
 			if !ok {
-				e := fmt.Errorf("not found rule: %s", option.Name)
+				e := fmt.Errorf("not found rule: %s", rule.Name)
 				if tmp, ok := errsBag[key.Name]; ok {
 					errsBag[key.Name] = append(tmp, e)
 				} else {
@@ -74,12 +78,12 @@ func (this *Validator) Validate(a interface{}) (Result, error) {
 				continue
 			}
 			//调用校验函数
-			if ok, err := fn(key.Name, value); err == nil {
+			if ok, err := fn(key.Name, value, rule); err == nil {
 				if !ok {
 					if tmp, ok := result[key.Name]; ok {
-						result[key.Name] = append(tmp, option.Message)
+						result[key.Name] = append(tmp, rule.Message)
 					} else {
-						result[key.Name] = []string{option.Message}
+						result[key.Name] = []string{rule.Message}
 					}
 				}
 			} else {
