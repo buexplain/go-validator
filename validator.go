@@ -76,13 +76,14 @@ func (this *Validator) Validate(structVar interface{}) (Result, error) {
 				continue
 			}
 			//调用校验函数
-			if ok, err := fn(key.Name, value, rule); err == nil {
-				if !ok {
+			if message, err := fn(key.Name, value, rule); err == nil {
+				if message != "" {
 					if tmp, ok := result[key.Name]; ok {
-						result[key.Name] = append(tmp, rule.message)
+						result[key.Name] = append(tmp, message)
 					} else {
-						result[key.Name] = []string{rule.message}
+						result[key.Name] = []string{message}
 					}
+					break
 				}
 			} else {
 				if tmp, ok := errsBag[key.Name]; ok {
@@ -90,6 +91,7 @@ func (this *Validator) Validate(structVar interface{}) (Result, error) {
 				} else {
 					errsBag[key.Name] = []error{err}
 				}
+				break
 			}
 		}
 	}

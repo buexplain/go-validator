@@ -1,6 +1,5 @@
 package validator
 
-
 //配置信息
 type Options struct {
 	field string
@@ -20,8 +19,8 @@ func (this Options) Clone() *Options {
 	return tmp
 }
 
-func (this *Options) Add(rule string, message string) *Options {
-	r := NewRule(rule, message)
+func (this *Options) Add(rule string, message ...string) *Options {
+	r := newRule(rule, message...)
 	if tmp, ok := this.Data[this.field]; ok {
 		this.Data[this.field] = append(tmp, r)
 	} else {
@@ -29,4 +28,3 @@ func (this *Options) Add(rule string, message string) *Options {
 	}
 	return this
 }
-

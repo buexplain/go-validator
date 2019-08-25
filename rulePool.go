@@ -2,88 +2,284 @@ package validator
 
 import (
 	"errors"
-	"mime/multipart"
+	"fmt"
 	"reflect"
 )
 
 //校验函数
-type FN func(field string, value interface{}, rule *Rule) (bool, error)
+type FN func(field string, value interface{}, rule *Rule) (string, error)
 
 //规则池
 var rulePool map[string]FN = map[string]FN{}
 
-func init() {
-	rulePool["required"] = func(field string, value interface{}, rule *Rule) (bool, error) {
-		if value == nil {
-			return false, nil
-		}
+//从规则池中取出一条规则
+func Pool(ruleName string) FN {
+	if r, ok := rulePool[ruleName]; ok {
+		return r
+	}
+	return nil
+}
 
-		if _, ok := value.(multipart.File); ok {
-			return true, nil
+//校验非零值
+func init() {
+	rulePool["required"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		if value == nil {
+			return rule.Message(0), nil
 		}
+		if isEmpty(value) {
+			return rule.Message(0), nil
+		}
+		return "", nil
+	}
+}
+
+//校验范围 min与max是一段连续的区间
+func init() {
+	rulePool["between"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		if value == nil {
+			return rule.Message(0), nil
+		}
+		minFloat := rule.GetFloat("min")
+		maxFloat := rule.GetFloat("max")
+		min := int(minFloat)
+		max := int(maxFloat)
 
 		rv := reflect.ValueOf(value)
 		switch rv.Kind() {
-		case reflect.String, reflect.Array, reflect.Slice, reflect.Map:
-			if rv.Len() == 0 {
-				return false, nil
+		case reflect.Array, reflect.Map, reflect.Slice:
+			inLen := rv.Len()
+			if !(inLen >= min && inLen <= max) {
+				return rule.Message(0), nil
+			}
+		case reflect.String:
+			inLen := len([]rune(value.(string)))
+			if !(inLen >= min && inLen <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Int:
-			if isEmpty(value.(int)) {
-				return false, nil
+			in := value.(int)
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Int8:
-			if isEmpty(value.(int8)) {
-				return false, nil
+			in := int(value.(int8))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Int16:
-			if isEmpty(value.(int16)) {
-				return false, nil
+			in := int(value.(int16))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Int32:
-			if isEmpty(value.(int32)) {
-				return false, nil
+			in := int(value.(int32))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Int64:
-			if isEmpty(value.(int64)) {
-				return false, nil
-			}
-		case reflect.Float32:
-			if isEmpty(value.(float32)) {
-				return false, nil
-			}
-		case reflect.Float64:
-			if isEmpty(value.(float64)) {
-				return false, nil
+			in := int(value.(int64))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Uint:
-			if isEmpty(value.(uint)) {
-				return false, nil
+			in := int(value.(uint))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Uint8:
-			if isEmpty(value.(uint8)) {
-				return false, nil
+			in := int(value.(uint8))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Uint16:
-			if isEmpty(value.(uint16)) {
-				return false, nil
+			in := int(value.(uint16))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Uint32:
-			if isEmpty(value.(uint32)) {
-				return false, nil
+			in := int(value.(uint32))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Uint64:
-			if isEmpty(value.(uint64)) {
-				return false, nil
+			in := int(value.(uint64))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
 			}
 		case reflect.Uintptr:
-			if isEmpty(value.(uintptr)) {
-				return false, nil
+			in := int(value.(uintptr))
+			if !(in >= min && in <= max) {
+				return rule.Message(0), nil
+			}
+		case reflect.Float32:
+			in := float64(value.(float32))
+			if !(in >= minFloat && in <= maxFloat) {
+				return rule.Message(0), nil
+			}
+		case reflect.Float64:
+			in := value.(float64)
+			if !(in >= minFloat && in <= maxFloat) {
+				return rule.Message(0), nil
 			}
 		default:
-			return false, errors.New("invalid type for required rule")
+			return "", errors.New("invalid type for between rule")
 
 		}
-		return true, nil
+		return "", nil
+	}
+}
+
+//字母
+func init() {
+	rulePool["alpha"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		str := toString(value)
+		if str == "" {
+			return rule.Message(0), nil
+		}
+		if !regexAlpha.MatchString(str) {
+			return rule.Message(1), nil
+		}
+		return "", nil
+	}
+}
+
+//数字
+func init() {
+	rulePool["numeric"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		str := toString(value)
+		if str == "" {
+			return rule.Message(0), nil
+		}
+		if !regexNumeric.MatchString(str) {
+			return rule.Message(1), nil
+		}
+		return "", nil
+	}
+}
+
+//字母与数字
+func init() {
+	rulePool["alpha_numeric"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		str := toString(value)
+		if str == "" {
+			return rule.Message(0), nil
+		}
+		if !regexAlphaNumeric.MatchString(str) {
+			return rule.Message(1), nil
+		}
+		return "", nil
+	}
+}
+
+//字母与数字，以及破折号和下划线
+func init() {
+	rulePool["alpha_numeric_dash"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		str := toString(value)
+		if str == "" {
+			return rule.Message(0), nil
+		}
+		if !regexAlphaNumericDash.MatchString(str) {
+			return rule.Message(1), nil
+		}
+		return "", nil
+	}
+}
+
+//邮箱
+func init() {
+	rulePool["email"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		str := toString(value)
+		if str == "" {
+			return rule.Message(0), nil
+		}
+		if !regexEmail.MatchString(str) {
+			return rule.Message(1), nil
+		}
+		return "", nil
+	}
+}
+
+//数字、字母、特殊符号至少两种
+func init() {
+	rulePool["password"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		min := rule.GetInt("min", 8)
+		max := rule.GetInt("max", 32)
+		str := toString(value)
+		if str == "" {
+			return rule.Message(0), nil
+		}
+
+		runeStr := []rune(str)
+
+		inLen := len(runeStr)
+		if !(inLen >= min && inLen <= max) {
+			return rule.Message(1), nil //密码格式有误，请输入8位以上32位以下的密码
+		}
+
+		//字母
+		letter := false
+		//数字
+		number := false
+		//特殊符号
+		char := false
+		//键盘上的ASCII以外的字符，比如 ￥
+		charArr := [...]rune{65281, 65509, 8230, 8230, 65288, 65289,
+			8212, 8212, 65292, 12290, 65307, 8216, 12289, 12305, 12304}
+		in := func(char rune) bool {
+			for _, v := range charArr {
+				if char == v {
+					return true
+				}
+			}
+			return false
+		}
+
+		for _, v := range runeStr {
+			if v >= 48 && v <= 57 {
+				number = true
+			} else if (v >= 65 && v <= 90) || (v >= 97 && v <= 122) {
+				letter = true
+			} else if (v >= 33 && v <= 126) || in(v) {
+				char = true
+			} else {
+				fmt.Println(v)
+				return rule.Message(2), nil //密码格式有误，请输入数字、字母、符号
+			}
+		}
+
+		result := 0
+
+		if letter {
+			result += 1
+		}
+		if number {
+			result += 1
+		}
+		if char {
+			result += 1
+		}
+
+		if result >= 2 {
+			return "", nil
+		} else {
+			return rule.Message(3), nil //密码格式有误，数字、字母、符号至少两种
+		}
+	}
+}
+
+//校验范围，这个范围不是一段连续的区间
+func init() {
+	rulePool["in"] = func(field string, value interface{}, rule *Rule) (string, error) {
+		if value == nil {
+			return rule.Message(0), nil
+		}
+		str := toString(value)
+		if str == "" {
+			return rule.Message(0), nil
+		}
+		if !rule.HasIn("in", str) {
+			return rule.Message(1), nil
+		}
+		return "", nil
 	}
 }
