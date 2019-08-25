@@ -18,7 +18,7 @@ type User struct {
 	//用户状态 1=禁止 2=允许
 	Status int
 	//用户角色 admin=普通管理员 superAdmin=超级管理员
-	Role string
+	Role []string
 }
 
 //全局的校验类，只读，不支持并发写
@@ -60,7 +60,7 @@ func createUser() {
 	user.Password = `123~！#￥%……&*（）——+~!@#$%^&*()_+，。/；‘、】【,./;'[]\'_:"><"`
 	user.Nickname = "123我爱你"
 	user.Status = 1
-	user.Role = "admin"
+	user.Role = []string{"admin"}
 
 	result, err := validatorObj.Validate(*user)
 
@@ -85,9 +85,9 @@ func updateUser() {
 	user.Nickname = "123我爱你"
 	user.Password = ""
 	user.Status = 1
-	user.Role = "admin"
+	user.Role = []string{"admin"}
 
-	//通过自定义规则，重写 password 规则，改为密码有值，则校验，无值，则通过
+	//重写 password 规则，改为密码有值，则校验，无值，则通过
 	v := validatorObj.Clone()
 	v.Custom("password", func(field string, value interface{}, rule *validator.Rule) (s string, e error) {
 		str, _ := value.(string)
@@ -115,6 +115,6 @@ func updateUser() {
 }
 
 func main() {
-	//createUser()
+	createUser()
 	updateUser()
 }

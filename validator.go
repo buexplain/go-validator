@@ -48,7 +48,7 @@ func (this *Validator) Validate(structVar interface{}) (Result, error) {
 
 	//转换结构体指针
 	if k := reflectType.Kind(); k == reflect.Ptr {
-		reflectType = reflect.TypeOf(reflectValue.Elem())
+		reflectType = reflectType.Elem()
 		reflectValue = reflectValue.Elem()
 	}
 

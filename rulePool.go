@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 )
 
 //校验函数
@@ -273,12 +274,118 @@ func init() {
 		if value == nil {
 			return rule.Message(0), nil
 		}
-		str := toString(value)
-		if str == "" {
-			return rule.Message(0), nil
-		}
-		if !rule.HasIn("in", str) {
-			return rule.Message(1), nil
+		rv := reflect.ValueOf(value)
+		switch rv.Kind() {
+		case reflect.Slice:
+			if rv.Len() == 0 {
+				return rule.Message(0), nil
+			}
+			if arr, ok := value.([]string); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", v) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]int); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(v)) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]float64); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", fmt.Sprintf("%v", v)) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]int8); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]int16); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]int32); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]int64); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]uint); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]uint8); ok {
+
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]uint16); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]uint32); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]uint64); ok {
+
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]uintptr); ok {
+
+				for _, v := range arr {
+					if !rule.HasIn("in", strconv.Itoa(int(v))) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]float32); ok {
+
+				for _, v := range arr {
+					if !rule.HasIn("in", fmt.Sprintf("%v", v)) {
+						return rule.Message(1), nil
+					}
+				}
+			} else if arr, ok := value.([]interface{}); ok {
+				for _, v := range arr {
+					if !rule.HasIn("in", fmt.Sprintf("%v", v)) {
+						return rule.Message(1), nil
+					}
+				}
+			} else {
+				return "", errors.New("invalid type for in rule")
+			}
+		default:
+			str := toString(value)
+			if str == "" {
+				return rule.Message(0), nil
+			}
+			if !rule.HasIn("in", str) {
+				return rule.Message(1), nil
+			}
+			return "", nil
 		}
 		return "", nil
 	}
