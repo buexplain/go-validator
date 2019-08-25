@@ -98,7 +98,7 @@ func updateUser() {
 		return validator.Pool("password")(field, value, rule)
 	})
 
-	result, err := v.Validate(*user)
+	result, err := v.Validate(user)
 
 	if err != nil {
 		fmt.Println("校验器出错", err)
@@ -115,6 +115,6 @@ func updateUser() {
 }
 
 func main() {
-	createUser()
+	//createUser()
 	updateUser()
 }

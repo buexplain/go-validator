@@ -46,6 +46,12 @@ func (this *Validator) Validate(structVar interface{}) (Result, error) {
 	result := Result{}
 	errsBag := ErrorBag{}
 
+	//转换结构体指针
+	if k := reflectType.Kind(); k == reflect.Ptr {
+		reflectType = reflect.TypeOf(reflectValue.Elem())
+		reflectValue = reflectValue.Elem()
+	}
+
 	if k := reflectType.Kind(); k != reflect.Struct {
 		errsBag["validator"] = []error{fmt.Errorf("The validator parameter must be Struct type")}
 		return result, errsBag
