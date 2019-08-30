@@ -14,7 +14,7 @@
 * `alpha_numeric_dash` 校验字母与数字，以及破折号和下划线。
 * `email` 校验邮箱。
 * `password` 校验密码强度，min到max个字符，数字、字母、特殊符号至少两种。
-* `in` 校验范围，这个范围不是一段连续的区间。
+* `in` 校验范围，这个范围不是一段连续的区间，类似于白名单校验，支持校验`slice`，与传递`split=\,`后，切割成`slice`再校验。
 
 ## License
 [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.html)

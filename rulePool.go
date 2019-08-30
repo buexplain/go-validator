@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 //校验函数
@@ -243,7 +244,6 @@ func init() {
 			} else if (v >= 33 && v <= 126) || in(v) {
 				char = true
 			} else {
-				fmt.Println(v)
 				return rule.Message(2), nil //密码格式有误，请输入数字、字母、符号
 			}
 		}
@@ -268,7 +268,7 @@ func init() {
 	}
 }
 
-//校验范围，这个范围不是一段连续的区间
+//校验范围，这个范围不是一段连续的区间，类似白名单
 func init() {
 	rulePool["in"] = func(field string, value interface{}, rule *Rule) (string, error) {
 		if value == nil {
@@ -382,8 +382,19 @@ func init() {
 			if str == "" {
 				return rule.Message(0), nil
 			}
-			if !rule.HasIn("in", str) {
-				return rule.Message(1), nil
+			//支持切割value后再进行校验
+			split := rule.GetString("split")
+			if split != "" {
+				strArr := strings.Split(str, split)
+				for _, v := range strArr {
+					if !rule.HasIn("in", v) {
+						return rule.Message(1), nil
+					}
+				}
+			}else {
+				if !rule.HasIn("in", str) {
+					return rule.Message(1), nil
+				}
 			}
 			return "", nil
 		}

@@ -7,7 +7,7 @@ import (
 
 //结构体校验器
 type Validator struct {
-	//所有校验规则
+	//所有的字段与其对应的校验的规则的集合
 	options *Options
 	//自定义规则
 	custom map[string]FN
@@ -15,7 +15,7 @@ type Validator struct {
 
 func New() *Validator {
 	tmp := new(Validator)
-	tmp.options = &Options{Data: map[string][]*Rule{}}
+	tmp.options = newOptions()
 	tmp.custom = map[string]FN{}
 	return tmp
 }
@@ -30,21 +30,29 @@ func (this Validator) Clone() *Validator {
 	return tmp
 }
 
-func (this *Validator) Custom(name string, fn FN) {
-	this.custom[name] = fn
+//添加自定义规则
+func (this *Validator) Custom(ruleName string, fn FN) {
+	this.custom[ruleName] = fn
 }
 
-func (this *Validator) Rule(field string) *Options {
-	this.options.field = field
+//给字段添加规则
+func (this *Validator) Rule(field string, alias ...string) *Options {
+	this.options.currentField = field
+	if len(alias) > 0 {
+		this.options.Alias[field] = alias[0]
+	}else {
+		this.options.Alias[field] = field
+	}
 	return this.options
 }
 
-func (this *Validator) Validate(structVar interface{}) (Result, error) {
+//校验一个结构体
+func (this *Validator) Validate(structVar interface{}) (*Result, error) {
 	reflectType := reflect.TypeOf(structVar)
 	reflectValue := reflect.ValueOf(structVar)
 
-	result := Result{}
-	errsBag := ErrorBag{}
+	result := newResult()
+	errsBag := newErrorBag()
 
 	//转换结构体指针
 	if k := reflectType.Kind(); k == reflect.Ptr {
@@ -65,6 +73,10 @@ func (this *Validator) Validate(structVar interface{}) (Result, error) {
 		if !ok {
 			continue
 		}
+		alias, ok := this.options.Alias[key.Name]
+		if !ok {
+			continue
+		}
 		for _, rule := range rules {
 			//优先使用自定义校验规则
 			fn, ok := this.custom[rule.name]
@@ -73,30 +85,18 @@ func (this *Validator) Validate(structVar interface{}) (Result, error) {
 			}
 			//根据规则名称，没有找到相关规则
 			if !ok {
-				e := fmt.Errorf("not found rule: %s", rule.name)
-				if tmp, ok := errsBag[key.Name]; ok {
-					errsBag[key.Name] = append(tmp, e)
-				} else {
-					errsBag[key.Name] = []error{e}
-				}
+				err := fmt.Errorf("not found rule: %s", rule.name)
+				errsBag.Add(key.Name, err)
 				continue
 			}
 			//调用校验函数
 			if message, err := fn(key.Name, value, rule); err == nil {
 				if message != "" {
-					if tmp, ok := result[key.Name]; ok {
-						result[key.Name] = append(tmp, message)
-					} else {
-						result[key.Name] = []string{message}
-					}
+					result.Add(alias, message)
 					break
 				}
 			} else {
-				if tmp, ok := errsBag[key.Name]; ok {
-					errsBag[key.Name] = append(tmp, err)
-				} else {
-					errsBag[key.Name] = []error{err}
-				}
+				errsBag.Add(key.Name, err)
 				break
 			}
 		}

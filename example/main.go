@@ -18,7 +18,7 @@ type User struct {
 	//用户状态 1=禁止 2=允许
 	Status int
 	//用户角色 admin=普通管理员 superAdmin=超级管理员
-	Role []string
+	Role string
 }
 
 //全局的校验类，只读，不支持并发写
@@ -46,11 +46,11 @@ func init() {
 			"密码格式有误，数字、字母、符号至少两种",
 		)
 
-	validatorObj.Rule("Nickname").Add("between:min=1&max=7", "请输入昵称", "昵称字符在1~7个之间")
+	validatorObj.Rule("Nickname", "昵称").Add("between:min=1&max=7", "请输入昵称", "昵称字符在1~7个之间")
 
-	validatorObj.Rule("Status").Add("between:min=1&max=2", "请选择用户状态", "错误的用户状态值")
+	validatorObj.Rule("Status", "用户状态").Add("between:min=1&max=2", "请选择用户状态", "错误的用户状态值")
 
-	validatorObj.Rule("Role").Add("in:in=admin,superAdmin", "请选择用户身份", "错误的用户身份值")
+	validatorObj.Rule("Role", "角色").Add(`in:in=admin,superAdmin,user&split=\,`, "请选择用户身份", "错误的用户身份值")
 }
 
 func createUser() {
@@ -60,15 +60,15 @@ func createUser() {
 	user.Password = `123~！#￥%……&*（）——+~!@#$%^&*()_+，。/；‘、】【,./;'[]\'_:"><"`
 	user.Nickname = "123我爱你"
 	user.Status = 1
-	user.Role = []string{"admin"}
+	user.Role = "admin,superAdmin"
 
 	result, err := validatorObj.Validate(*user)
 
 	if err != nil {
-		fmt.Println("校验器出错", err)
+		fmt.Println("校验器出错\n", err)
 		os.Exit(1)
 	} else {
-		if len(result) > 0 {
+		if !result.IsEmpty() {
 			fmt.Println("校验失败")
 			fmt.Println(result)
 			os.Exit(1)
@@ -85,7 +85,7 @@ func updateUser() {
 	user.Nickname = "123我爱你"
 	user.Password = ""
 	user.Status = 1
-	user.Role = []string{"admin"}
+	user.Role = "admin,superAdmin"
 
 	//重写 password 规则，改为密码有值，则校验，无值，则通过
 	v := validatorObj.Clone()
@@ -101,10 +101,11 @@ func updateUser() {
 	result, err := v.Validate(user)
 
 	if err != nil {
-		fmt.Println("校验器出错", err)
+		fmt.Println("校验器出错")
+		fmt.Println(err)
 		os.Exit(1)
 	} else {
-		if len(result) > 0 {
+		if !result.IsEmpty() {
 			fmt.Println("校验失败")
 			fmt.Println(result)
 			os.Exit(1)
