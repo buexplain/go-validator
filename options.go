@@ -31,11 +31,10 @@ func (this Options) Clone() *Options {
 }
 
 func (this *Options) Add(rule string, message ...string) *Options {
+	r := newRule(rule, message...)
 	if tmp, ok := this.Data[this.currentField]; !ok {
-		r := newRule(rule, message...)
 		this.Data[this.currentField] = []*Rule{r}
 	} else {
-		r := newRule(rule, message...)
 		for k, v := range tmp {
 			if v.name == r.name {
 				//重复的规则会被覆盖掉

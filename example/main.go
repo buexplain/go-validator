@@ -107,7 +107,6 @@ func updateUser() {
 	} else {
 		if !result.IsEmpty() {
 			fmt.Println("校验失败")
-			fmt.Println(result)
 			os.Exit(1)
 		}
 	}

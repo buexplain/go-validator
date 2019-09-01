@@ -67,13 +67,19 @@ func (this Result) ToSimpleString(eof ...string) string {
 		_eof = []byte(eof[0])
 	}
 	counter := 0
+	fieldLen := len(this.Field)
 	for index, _ := range this.Field {
+		messageLen := len(this.Message[index])
 		for _, message := range this.Message[index] {
+			if buf.Len() > 0 {
+				buf.Write(_eof)
+			}
 			counter++
-			buf.WriteString(strconv.Itoa(counter))
-			buf.WriteString(". ")
+			if !(fieldLen == 1 && messageLen == 1) {
+				buf.WriteString(strconv.Itoa(counter))
+				buf.WriteString(". ")
+			}
 			buf.WriteString(message)
-			buf.Write(_eof)
 		}
 	}
 	return buf.String()
