@@ -9,7 +9,7 @@ import (
 )
 
 //校验函数
-type FN func(field string, value interface{}, rule *Rule) (string, error)
+type FN func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error)
 
 //规则池
 var rulePool map[string]FN = map[string]FN{}
@@ -24,7 +24,7 @@ func Pool(ruleName string) FN {
 
 //校验非零值
 func init() {
-	rulePool["required"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["required"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		if value == nil {
 			return rule.Message(0), nil
 		}
@@ -37,7 +37,7 @@ func init() {
 
 //校验范围 min与max是一段连续的区间
 func init() {
-	rulePool["between"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["between"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		if value == nil {
 			return rule.Message(0), nil
 		}
@@ -133,7 +133,7 @@ func init() {
 
 //字母
 func init() {
-	rulePool["alpha"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["alpha"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		str := toString(value)
 		if str == "" {
 			return rule.Message(0), nil
@@ -147,7 +147,7 @@ func init() {
 
 //数字
 func init() {
-	rulePool["numeric"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["numeric"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		str := toString(value)
 		if str == "" {
 			return rule.Message(0), nil
@@ -161,7 +161,7 @@ func init() {
 
 //字母与数字
 func init() {
-	rulePool["alpha_numeric"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["alpha_numeric"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		str := toString(value)
 		if str == "" {
 			return rule.Message(0), nil
@@ -175,7 +175,7 @@ func init() {
 
 //字母与数字，以及破折号和下划线
 func init() {
-	rulePool["alpha_numeric_dash"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["alpha_numeric_dash"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		str := toString(value)
 		if str == "" {
 			return rule.Message(0), nil
@@ -189,7 +189,7 @@ func init() {
 
 //邮箱
 func init() {
-	rulePool["email"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["email"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		str := toString(value)
 		if str == "" {
 			return rule.Message(0), nil
@@ -203,7 +203,7 @@ func init() {
 
 //数字、字母、特殊符号至少两种
 func init() {
-	rulePool["password"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["password"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		min := rule.GetInt("min", 8)
 		max := rule.GetInt("max", 32)
 		str := toString(value)
@@ -270,7 +270,7 @@ func init() {
 
 //校验范围，这个范围不是一段连续的区间，类似白名单
 func init() {
-	rulePool["in"] = func(field string, value interface{}, rule *Rule) (string, error) {
+	rulePool["in"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
 		if value == nil {
 			return rule.Message(0), nil
 		}

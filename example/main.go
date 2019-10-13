@@ -27,7 +27,7 @@ var validatorObj *validator.Validator
 func init() {
 	validatorObj = validator.New()
 	//通过自定义规则，来检查用户账号是否唯一
-	validatorObj.Custom("account_unique", func(field string, value interface{}, rule *validator.Rule) (s string, e error) {
+	validatorObj.Custom("account_unique", func(field string, value interface{}, rule *validator.Rule, structVar interface{}) (s string, e error) {
 		fmt.Printf("account_unique: field=%s value=%s rule= %+v\n", field, value, rule)
 		return "", nil
 	})
@@ -89,13 +89,13 @@ func updateUser() {
 
 	//重写 password 规则，改为密码有值，则校验，无值，则通过
 	v := validatorObj.Clone()
-	v.Custom("password", func(field string, value interface{}, rule *validator.Rule) (s string, e error) {
+	v.Custom("password", func(field string, value interface{}, rule *validator.Rule, structVar interface{}) (s string, e error) {
 		str, _ := value.(string)
 		if str == "" {
 			return "", nil
 		}
 		//从规则池中，拿出 password 规则，继续使用
-		return validator.Pool("password")(field, value, rule)
+		return validator.Pool("password")(field, value, rule, structVar)
 	})
 
 	result, err := v.Validate(user)

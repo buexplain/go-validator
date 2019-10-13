@@ -90,7 +90,7 @@ func (this *Validator) Validate(structVar interface{}) (*Result, error) {
 				continue
 			}
 			//调用校验函数
-			if message, err := fn(key.Name, value, rule); err == nil {
+			if message, err := fn(key.Name, value, rule, structVar); err == nil {
 				if message != "" {
 					result.Add(alias, message)
 					break
