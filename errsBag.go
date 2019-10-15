@@ -12,7 +12,7 @@ func newErrorBag() ErrorBag {
 	return ErrorBag{}
 }
 
-func (this ErrorBag) Add(field string, err error)  {
+func (this ErrorBag) Add(field string, err error) {
 	if tmp, ok := this[field]; ok {
 		this[field] = append(tmp, err)
 	} else {
@@ -28,7 +28,7 @@ func (this ErrorBag) Error() string {
 		buf.WriteString(eof)
 		for index, err := range errors {
 			buf.WriteString("    ")
-			buf.WriteString(strconv.Itoa(index+1))
+			buf.WriteString(strconv.Itoa(index + 1))
 			buf.WriteString(". ")
 			buf.WriteString(err.Error())
 			buf.WriteString(eof)

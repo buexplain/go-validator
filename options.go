@@ -4,7 +4,7 @@ package validator
 type Options struct {
 	currentField string
 	//字段名与校验规则
-	Data  map[string][]*Rule
+	Data map[string][]*Rule
 	//字段的别名
 	Alias map[string]string
 }

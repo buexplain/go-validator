@@ -8,7 +8,7 @@ import (
 //校验结果
 type Result struct {
 	Message map[int][]string
-	Field []string
+	Field   []string
 }
 
 func newResult() *Result {
@@ -35,13 +35,12 @@ func (this *Result) Add(field string, message string) *Result {
 	return this
 }
 
-
 func (this Result) ToString(eof ...string) string {
 	var buf strings.Builder
 	var _eof []byte
 	if len(eof) == 0 {
 		_eof = []byte("<br>")
-	}else {
+	} else {
 		_eof = []byte(eof[0])
 	}
 	for index, field := range this.Field {
@@ -49,7 +48,7 @@ func (this Result) ToString(eof ...string) string {
 		buf.Write(_eof)
 		for index, message := range this.Message[index] {
 			buf.WriteString("    ")
-			buf.WriteString(strconv.Itoa(index+1))
+			buf.WriteString(strconv.Itoa(index + 1))
 			buf.WriteString(". ")
 			buf.WriteString(message)
 			buf.Write(_eof)
@@ -63,7 +62,7 @@ func (this Result) ToSimpleString(eof ...string) string {
 	var _eof []byte
 	if len(eof) == 0 {
 		_eof = []byte("<br>")
-	}else {
+	} else {
 		_eof = []byte(eof[0])
 	}
 	counter := 0

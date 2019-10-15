@@ -40,7 +40,7 @@ func (this *Validator) Rule(field string, alias ...string) *Options {
 	this.options.currentField = field
 	if len(alias) > 0 {
 		this.options.Alias[field] = alias[0]
-	}else {
+	} else {
 		this.options.Alias[field] = field
 	}
 	return this.options

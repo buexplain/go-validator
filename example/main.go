@@ -32,7 +32,7 @@ func init() {
 		return "", nil
 	})
 
-	validatorObj.Rule("ID").Add("required", "错误的用户ID")
+	validatorObj.Rule("ID").Add("required", "请输入用户ID").Add("positive_numeric", "错误的用户ID")
 
 	validatorObj.Rule("Account").
 		Add("email", "请输入邮箱", "请输入正确的邮箱").
@@ -69,7 +69,7 @@ func createUser() {
 		os.Exit(1)
 	} else {
 		if !result.IsEmpty() {
-			fmt.Println("校验失败")
+			fmt.Println("校验失败", result.String())
 			fmt.Println(result)
 			os.Exit(1)
 		}
@@ -106,9 +106,10 @@ func updateUser() {
 		os.Exit(1)
 	} else {
 		if !result.IsEmpty() {
-			fmt.Println("校验失败")
+			fmt.Println("校验失败", result.String())
 			os.Exit(1)
 		}
+
 	}
 
 	fmt.Println("校验通过 update user")

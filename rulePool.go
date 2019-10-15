@@ -159,6 +159,20 @@ func init() {
 	}
 }
 
+//正整数
+func init() {
+	rulePool["positive_numeric"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
+		str := toString(value)
+		if str == "" {
+			return rule.Message(0), nil
+		}
+		if !regexPositiveNumeric.MatchString(str) {
+			return rule.Message(1), nil
+		}
+		return "", nil
+	}
+}
+
 //字母与数字
 func init() {
 	rulePool["alpha_numeric"] = func(field string, value interface{}, rule *Rule, structVar interface{}) (string, error) {
@@ -391,7 +405,7 @@ func init() {
 						return rule.Message(1), nil
 					}
 				}
-			}else {
+			} else {
 				if !rule.HasIn("in", str) {
 					return rule.Message(1), nil
 				}

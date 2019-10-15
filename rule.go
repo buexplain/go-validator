@@ -30,11 +30,11 @@ func (this *Rule) parse(rule string) {
 	//从规则字符串中切割出规则的名称
 	s := strings.SplitN(rule, ":", 2)
 	this.name = strings.Trim(s[0], " ")
-	if(this.name == "") {
+	if this.name == "" {
 		panic("NewRule: rule is a bad parameter")
 	}
 	this.param = map[string][]string{}
-	if len(s) <=1 {
+	if len(s) <= 1 {
 		return
 	}
 	//从规则字符串中解析出规则的参数
@@ -62,9 +62,9 @@ func (this *Rule) parse(rule string) {
 			if v != "" {
 				if v == and {
 					v = "&"
-				}else if v == equal {
+				} else if v == equal {
 					v = "="
-				}else if v == comma {
+				} else if v == comma {
 					v = ","
 				}
 				value = append(value, v)
@@ -161,7 +161,7 @@ func (this Rule) GetFloat(key string, def ...float64) float64 {
 	return 0
 }
 
-func (this Rule) GetBool(key string, def ...bool) bool  {
+func (this Rule) GetBool(key string, def ...bool) bool {
 	if tmp, ok := this.param[key]; ok {
 		if n, err := strconv.ParseBool(tmp[0]); err == nil {
 			return n

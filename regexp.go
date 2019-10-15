@@ -7,6 +7,8 @@ const (
 	alpha string = "^[a-zA-Z]+$"
 	//纯数字
 	numeric string = "^[0-9]+$"
+	//正数
+	positiveNumeric string = `^[1-9][0-9]*$`
 	//字符与数字
 	alphaNumeric string = "^[a-zA-Z0-9]+$"
 	//字母数字字符，以及破折号和下划线
@@ -18,6 +20,7 @@ const (
 var (
 	regexAlpha            = regexp.MustCompile(alpha)
 	regexNumeric          = regexp.MustCompile(numeric)
+	regexPositiveNumeric  = regexp.MustCompile(positiveNumeric)
 	regexAlphaNumeric     = regexp.MustCompile(alphaNumeric)
 	regexAlphaNumericDash = regexp.MustCompile(alphaNumericDash)
 	regexEmail            = regexp.MustCompile(email)
