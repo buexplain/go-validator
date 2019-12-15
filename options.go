@@ -30,7 +30,7 @@ func (this Options) Clone() *Options {
 	return tmp
 }
 
-func (this *Options) Add(rule string, message ...string) *Options {
+func (this *Options) Rule(rule string, message ...string) *Options {
 	r := newRule(rule, message...)
 	if tmp, ok := this.Data[this.currentField]; !ok {
 		this.Data[this.currentField] = []*Rule{r}

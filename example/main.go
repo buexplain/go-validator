@@ -32,25 +32,25 @@ func init() {
 		return "", nil
 	})
 
-	validatorObj.Rule("ID").Add("required", "请输入用户ID").Add("positive_numeric", "错误的用户ID")
+	validatorObj.Field("ID").Rule("required", "请输入用户ID").Rule("positive_numeric", "错误的用户ID")
 
-	validatorObj.Rule("Account").
-		Add("email", "请输入邮箱", "请输入正确的邮箱").
-		Add("account_unique", "该账号已经存在，请重新输入")
+	validatorObj.Field("Account").
+		Rule("email", "请输入邮箱", "请输入正确的邮箱").
+		Rule("account_unique", "该账号已经存在，请重新输入")
 
-	validatorObj.Rule("Password").
-		Add("password:min=8&max=64",
+	validatorObj.Field("Password").
+		Rule("password:min=8&max=64",
 			"请输入密码",
 			"密码格式有误，请输入8位以上64位以下的密码",
 			"密码格式有误，请输入数字、字母、符号",
 			"密码格式有误，数字、字母、符号至少两种",
 		)
 
-	validatorObj.Rule("Nickname", "昵称").Add("between:min=1&max=7", "请输入昵称", "昵称字符在1~7个之间")
+	validatorObj.Field("Nickname", "昵称").Rule("between:min=1&max=7", "请输入昵称", "昵称字符在1~7个之间")
 
-	validatorObj.Rule("Status", "用户状态").Add("between:min=1&max=2", "请选择用户状态", "错误的用户状态值")
+	validatorObj.Field("Status", "用户状态").Rule("between:min=1&max=2", "请选择用户状态", "错误的用户状态值")
 
-	validatorObj.Rule("Role", "角色").Add(`in:in=admin,superAdmin,user&split=\,`, "请选择用户身份", "错误的用户身份值")
+	validatorObj.Field("Role", "角色").Rule(`in:in=admin,superAdmin,user&split=\,`, "请选择用户身份", "错误的用户身份值")
 }
 
 func createUser() {

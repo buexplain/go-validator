@@ -36,7 +36,7 @@ func (this *Validator) Custom(ruleName string, fn FN) {
 }
 
 //给字段添加规则
-func (this *Validator) Rule(field string, alias ...string) *Options {
+func (this *Validator) Field(field string, alias ...string) *Options {
 	this.options.currentField = field
 	if len(alias) > 0 {
 		this.options.Alias[field] = alias[0]
